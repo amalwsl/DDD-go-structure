@@ -1,7 +1,9 @@
 package postgres
 
 import (
+	"cars-stucture/domain"
 	"cars-stucture/repository"
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -15,8 +17,12 @@ var _ repository.Cars = (*POSTGRES)(nil)
 var DB *gorm.DB
 
 func NewDatabase(db *gorm.DB) *POSTGRES {
-	if db == nil {
-		panic("postgres: database is nil")
+
+	// autoMigrate the Car struct to create the "cars" table if it doesn't exist
+	err := db.AutoMigrate(&domain.Car{})
+	if err != nil {
+		log.Fatalf("Error auto migrating table: %v", err)
 	}
-	return &POSTGRES{db}
+
+	return &POSTGRES{db: db}
 }

@@ -6,7 +6,6 @@ import (
 	"cars-stucture/interfaces/http"
 	"log"
 	ghttp "net/http"
-	"os"
 
 	postgres_ "gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,12 +14,9 @@ import (
 var DB *gorm.DB
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatalf("no settings file provided")
-	}
 
 	var err error
-	dsn := os.Getenv("DB")
+	dsn := "host=surus.db.elephantsql.com user=hrjdepqm password=FoNrkYIQipb_YSXG3Is6wKDoYTb8ig9F dbname=hrjdepqm port=5432 sslmode=disable"
 	DB, err = gorm.Open(postgres_.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -30,9 +26,11 @@ func main() {
 	repo := postgres.NewDatabase(DB)
 	service := application.NewCarService(repo)
 
-	http.RegisterHandlers(service)
+	mux := ghttp.NewServeMux()
 
-	if err := ghttp.ListenAndServe(":8080", nil); err != nil {
+	http.RegisterHandlers(service, mux)
+
+	if err := ghttp.ListenAndServe(":8081", mux); err != nil {
 		log.Fatalf("failed to start server: %v", err)
 	}
 }

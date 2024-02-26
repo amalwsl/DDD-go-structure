@@ -66,3 +66,63 @@ func (cs *CarService) GetAvailableCars() ([]domain.Car, error) {
 	}
 	return availableCars, nil
 }
+
+// Repository represents the data access layer for managing cars.
+type Repository struct {
+	storage map[string]domain.Car
+}
+
+// NewRepository creates a new instance of Repository.
+func NewRepository() *Repository {
+	return &Repository{
+		storage: make(map[string]domain.Car),
+	}
+}
+
+// AddCar adds a new car to the repository.
+func (r *Repository) AddCar(car domain.Car) error {
+	if _, exists := r.storage[car.Registration]; exists {
+		return errors.New("car already exists")
+	}
+	r.storage[car.Registration] = car
+	return nil
+}
+
+// GetCarByRegistration retrieves a car by its registration number from the repository.
+func (r *Repository) GetCarByRegistration(registration string) (*domain.Car, error) {
+	car, exists := r.storage[registration]
+	if !exists {
+		return nil, errors.New("car not found")
+	}
+	return &car, nil
+}
+
+// UpdateCar updates the details of a car in the repository.
+func (r *Repository) UpdateCar(registration string, mileage int, rented bool) error {
+	car, exists := r.storage[registration]
+	if !exists {
+		return errors.New("car not found")
+	}
+	car.Mileage = mileage
+	car.Rented = rented
+	r.storage[registration] = car
+	return nil
+}
+
+// DeleteCar deletes a car by its registration number from the repository.
+func (r *Repository) DeleteCar(registration string) error {
+	if _, exists := r.storage[registration]; !exists {
+		return errors.New("car not found")
+	}
+	delete(r.storage, registration)
+	return nil
+}
+
+// GetAllCars retrieves all cars from the repository.
+func (r *Repository) GetAllCars() ([]domain.Car, error) {
+	var cars []domain.Car
+	for _, car := range r.storage {
+		cars = append(cars, car)
+	}
+	return cars, nil
+}

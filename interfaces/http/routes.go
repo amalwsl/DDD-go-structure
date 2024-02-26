@@ -2,6 +2,7 @@ package http
 
 import (
 	"cars-stucture/domain"
+	"fmt"
 	"net/http"
 )
 
@@ -13,14 +14,13 @@ func NewHandler() *handler {
 	return &handler{}
 }
 
-func RegisterHandlers(service domain.Service) {
+func RegisterHandlers(service domain.Service, mux *http.ServeMux) {
+	fmt.Println("here u r in routes ")
 	h := &handler{service}
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("GET /cars", h.getAllCars)
-	mux.HandleFunc("GET /cars/{registration}", h.getCarByRegistration)
-	mux.HandleFunc("POST /cars", h.addCar)
-	mux.HandleFunc("PUT /cars/{registration}", h.updateCar)
-	mux.HandleFunc("DELETE /cars/{registration}", h.deleteCar)
+	mux.Handle("GET /cars", h.handleGetAllCars())
+	mux.Handle("GET /cars/{registration}", h.handleGetCarByRegistration())
+	mux.Handle("POST /cars", h.handleAddCar())
+	mux.Handle("PUT /cars/{registration}", h.handleUpdateCar())
+	mux.Handle("DELETE /cars/{registration}", h.handleDeleteCar())
 }
